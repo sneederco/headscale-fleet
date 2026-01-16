@@ -1,0 +1,10 @@
+defaultNamespace: headscale
+
+targetCustomizations:
+- name: oke-prod
+  clusterSelector:
+    matchLabels:
+      env: production
+  yaml:
+    overlays:
+    - manifests/overlays/oke-prod.yaml

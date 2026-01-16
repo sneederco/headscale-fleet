@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headscale-ui
+  namespace: headscale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: headscale-ui
+  template:
+    metadata:
+      labels:
+        app: headscale-ui
+    spec:
+      containers:
+      - name: headscale-ui
+        image: ghcr.io/gurucomputing/headscale-ui:latest
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+        - name: HEADSCALE_URL
+          value: "https://headscale.rkfleming.com"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: headscale-ui
+  namespace: headscale
+spec:
+  selector:
+    app: headscale-ui
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
