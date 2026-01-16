@@ -11,10 +11,11 @@ spec:
   - Ingress
   - Egress
   ingress:
+  # Allow from rkfleming namespace (cloudflared)
   - from:
-    - podSelector:
+    - namespaceSelector:
         matchLabels:
-          app: cloudflared
+          kubernetes.io/metadata.name: rkfleming
     ports:
     - protocol: TCP
       port: 8080
@@ -60,10 +61,11 @@ spec:
   - Ingress
   - Egress
   ingress:
+  # Allow from rkfleming namespace (cloudflared)
   - from:
-    - podSelector:
+    - namespaceSelector:
         matchLabels:
-          app: cloudflared
+          kubernetes.io/metadata.name: rkfleming
     ports:
     - protocol: TCP
       port: 80
@@ -75,54 +77,3 @@ spec:
     ports:
     - protocol: TCP
       port: 8080
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: cloudflared-network-policy
-  namespace: headscale
-spec:
-  podSelector:
-    matchLabels:
-      app: cloudflared
-  policyTypes:
-  - Ingress
-  - Egress
-  ingress: []
-  egress:
-  - to:
-    - namespaceSelector: {}
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-  - to:
-    - podSelector:
-        matchLabels:
-          app: headscale
-    ports:
-    - protocol: TCP
-      port: 8080
-  - to:
-    - podSelector:
-        matchLabels:
-          app: headscale-ui
-    ports:
-    - protocol: TCP
-      port: 80
-  - to:
-    - ipBlock:
-        cidr: 0.0.0.0/0
-        except:
-        - 10.0.0.0/8
-        - 172.16.0.0/12
-        - 192.168.0.0/16
-    ports:
-    - protocol: TCP
-      port: 443
-    - protocol: TCP
-      port: 7844
-    - protocol: UDP
-      port: 7844
