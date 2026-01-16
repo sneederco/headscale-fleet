@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: headscale-ui-caddyfile
+  namespace: headscale
+data:
+  Caddyfile: |
+    :8080 {
+      root * /app
+      file_server
+      try_files {path} /index.html
+    }
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,20 +27,33 @@ spec:
         app: headscale-ui
     spec:
       securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
       - name: headscale-ui
         image: ghcr.io/gurucomputing/headscale-ui:2024.02.24-beta1
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           name: http
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
         env:
         - name: HEADSCALE_URL
           value: "https://headscale.rkfleming.com"
         volumeMounts:
         - name: data
           mountPath: /data
+        - name: caddyfile
+          mountPath: /data/Caddyfile
+          subPath: Caddyfile
         resources:
           requests:
             cpu: 50m
@@ -38,18 +64,21 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 80
+            port: 8080
           initialDelaySeconds: 15
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /
-            port: 80
+            port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
       volumes:
       - name: data
         emptyDir: {}
+      - name: caddyfile
+        configMap:
+          name: headscale-ui-caddyfile
 ---
 apiVersion: v1
 kind: Service
@@ -62,4 +91,4 @@ spec:
   ports:
   - name: http
     port: 80
-    targetPort: 80
+    targetPort: 8080
