@@ -13,13 +13,25 @@ spec:
       labels:
         app: cloudflared
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: cloudflared
-        image: cloudflare/cloudflared:2024.1.0
+        image: cloudflare/cloudflared:2024.12.2
         args:
         - tunnel
         - --no-autoupdate
         - run
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
         env:
         - name: TUNNEL_TOKEN
           valueFrom:

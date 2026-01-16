@@ -18,6 +18,7 @@ data:
     prefixes:
       v4: 100.64.0.0/10
       v6: fd7a:115c:a1e0::/48
+      allocation: sequential
 
     derp:
       server:
@@ -28,11 +29,18 @@ data:
       auto_update_enabled: true
       update_frequency: 24h
 
-    db_type: sqlite
-    db_path: /var/lib/headscale/db.sqlite
+    database:
+      type: sqlite
+      sqlite:
+        path: /var/lib/headscale/db.sqlite
 
     log:
       level: info
+      format: json
+
+    policy:
+      mode: file
+      path: ""
 
     dns:
       base_domain: tail.rkfleming.com

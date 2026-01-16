@@ -15,9 +15,16 @@ spec:
       labels:
         app: headscale
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: headscale
-        image: headscale/headscale:0.23.0
+        image: headscale/headscale:0.27.1
         args: ["serve"]
         ports:
         - containerPort: 8080
@@ -26,6 +33,12 @@ spec:
           name: metrics
         - containerPort: 50443
           name: grpc
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
         volumeMounts:
         - name: config
           mountPath: /etc/headscale
@@ -34,6 +47,8 @@ spec:
           mountPath: /var/lib/headscale
         - name: run
           mountPath: /var/run/headscale
+        - name: tmp
+          mountPath: /tmp
         resources:
           requests:
             cpu: 100m
@@ -61,6 +76,8 @@ spec:
         persistentVolumeClaim:
           claimName: headscale-data
       - name: run
+        emptyDir: {}
+      - name: tmp
         emptyDir: {}
 ---
 apiVersion: v1
