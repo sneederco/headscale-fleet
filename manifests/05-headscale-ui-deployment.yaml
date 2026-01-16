@@ -35,7 +35,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: headscale-ui
-        image: ghcr.io/gurucomputing/headscale-ui:2024.02.24-beta1
+        image: ghcr.io/gurucomputing/headscale-ui:2025.08.23
         ports:
         - containerPort: 8080
           name: http
