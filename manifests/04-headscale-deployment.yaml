@@ -24,7 +24,8 @@ spec:
           type: RuntimeDefault
       containers:
       - name: headscale
-        image: docker.io/headscale/headscale:0.27.1
+        image: docker.io/headscale/headscale:stable
+        imagePullPolicy: Always
         args: ["serve"]
         ports:
         - containerPort: 8080
